@@ -17,9 +17,10 @@ export function _customStyle(){
         
         
         // $('#_plannedCompletion').datepicker();
+        // $('#FilesTable_filter label').text("");
         $('#FilesTable th').css({'min-width':'130px'});
-        $('#FilesTable_length').addClass('col-md-6');
-        $('.dataTables_filter').addClass('col-md-6');
+        // $('#FilesTable_length').addClass('col-md-6');
+        // $('.dataTables_filter').addClass('col-md-6');
         $('.dataTables_filter input').addClass('form-control');
         $('.dataTables_length label').addClass('col-form-label');
         // $('.dataTables_length select').addClass('form-control');
@@ -49,7 +50,8 @@ export function _customStyle(){
         //Pre-pending the Button for new item
         let newItemButton = `<div class="col-2"><button type="button" id="btn_newProject" class="btn btn-primary">Create Project</button><br/><br/></div>`;
         //$('.dataGrid').prepend(newItemButton);
-        $('#FilesTable_length').before(newItemButton);
+       // $('#FilesTable_length').before(newItemButton);
+        $('.dataGrid').before(newItemButton);
         //$('#FilesTable_filter').hide();
         //$('#FilesTable_filter').after('<div id="customSearch" style="float:right" class="col-4"><input id="search3" class="form-control" Placeholder="Search" type="text"/></div>')
         $('#btnDiv').css({

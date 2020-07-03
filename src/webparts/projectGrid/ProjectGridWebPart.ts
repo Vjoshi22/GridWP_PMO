@@ -121,7 +121,7 @@ export default class ProjectGridWebPart extends BaseClientSideWebPart <IProjectG
     //     if(id_edit){
     //       _edititem(currentContext, id_edit);
     //   }
-      _customStyle(); 
+      //_customStyle(); 
 
     // }else{
     //   $('#newItemDiv, #newProject').hide();

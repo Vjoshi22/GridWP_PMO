@@ -7,7 +7,8 @@ import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/People
 import * as Moment from 'moment';  
 import 'react-dates/initialize';  
 import 'react-dates/lib/css/_datepicker.css';  
-import DateTimeField from "react-bootstrap-datetimepicker";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { GetParameterValues } from '../../projectGrid/Components/getQueryString';
 import { Form, FormGroup, Button, FormControl } from "react-bootstrap";
 import { SPComponentLoader } from "@microsoft/sp-loader";
@@ -78,34 +79,10 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
     //this.isOutsideRange = this.isOutsideRange.bind(this);
   }
   public componentDidMount() {
-    //$('.pickerText_4fe0caaf').css('border','0px');
-    $('#selected-items-id__38').next('input').addClass('form-control');
-    $('#selected-items-id__36').next('input').addClass('form-control');
-    //$('.datepicker').datepicker();
-    $("#inpt_plannedStart").datepicker({
-      dateFormat: "dd-M-yy",
-      minDate: 0,
-      onSelect: function (date) {
-          var date2 = $('#inpt_plannedStart').datepicker('getDate');
-          date2.setDate(date2.getDate() + 1);
-          $('#inpt_plannedCompletion').datepicker('setDate', date2);
-          //sets minDate to dt1 date + 1
-          $('#inpt_plannedCompletion').datepicker('option', 'minDate', date2);
-      }
-      });
-    $('#inpt_plannedCompletion').datepicker({
-          dateFormat: "dd-M-yy",
-          onClose: function () {
-              var dt1 = $('#inpt_plannedStart').datepicker('getDate');
-              var dt2 = $('#inpt_plannedCompletion').datepicker('getDate');
-              //check to prevent a user from entering a date below date of dt1
-              if (dt2 <= dt1) {
-                  var minDate = $('#inpt_plannedCompletion').datepicker('option', 'minDate');
-                  $('#inpt_plannedCompletion').datepicker('setDate', minDate);
-              }
-          }
-      });
-    //datepicker
+    $('.pickerText_4fe0caaf').css('border','0px');
+    $('.pickerInput_4fe0caaf').addClass('form-control');
+    $('.form-row').css('justify-content','center');
+  
     if((/edit/.test(window.location.href))){
       newitem = false;
       this.loadItems();
@@ -124,10 +101,23 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
  } 
  //public  isOutsideRange = day =>day.isAfter(Moment()) || day.isBefore(Moment().subtract(0, "days"));  
   private handleChange = (e) => {
-
     let newState = {};
     newState[e.target.name] = e.target.value;
     this.setState(newState);
+    if(e.target.name == "PlannedCompletion"){
+      $('.errorMessage').text("");
+      var date1 = $('#inpt_plannedStart').val();
+      var date2 = $('#inpt_plannedCompletion').val()
+      if(date1>=date2){
+        $('#inpt_plannedCompletion').val("")
+        newState[e.target.name] = "";
+        this.setState(newState);
+        //alert("Planned Completion Cannot be less than Planned Start");
+        $('#inpt_plannedCompletion').closest('div').append('<span class="errorMessage" style="color:red;font-size:9pt">Must be greater than Planned Start date</span>')
+      }else{
+        $('.errorMessage').remove();
+      }
+    }//planned completion if case ending
   }
   private handleSubmit = (e) =>{
     if(newitem){
@@ -150,21 +140,22 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
     SPComponentLoader.loadCss("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min.js");
     SPComponentLoader.loadCss("https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css");
     return (
-      <div id="newItemDiv" >
+      <div id="newItemDiv" className={styles["_main-div"]} >
+        <div id="heading" className={styles.heading}><h5>Enter the Project Details</h5></div>
       <Form onSubmit={this.handleSubmit}>
         <Form.Row className="mt-3">
           <FormGroup className="col-2">
-            <Form.Label className={styles.customlabel}>RMS ID</Form.Label>
+            <Form.Label className={styles.customlabel +" " + styles.required}>RMS ID</Form.Label>
           </FormGroup>
           <FormGroup className="col-3">
-            <Form.Control type="text" id="_RMSID" name="RMS_Id" placeholder="RMS ID" onChange={this.handleChange} value={this.state.RMS_Id}/>
+            <Form.Control size="sm" type="text" id="_RMSID" name="RMS_Id" placeholder="RMS ID" onChange={this.handleChange} value={this.state.RMS_Id}/>
           </FormGroup>
           <FormGroup className="col-1"></FormGroup>
           <FormGroup className="col-2">
             <Form.Label className={styles.customlabel}>CRM ID</Form.Label>
           </FormGroup>
           <FormGroup className="col-3">
-            <Form.Control type="text" id="_CRMID" name="CRM_Id" placeholder="CRM ID" onChange={this.handleChange} value={this.state.CRM_Id}/>
+            <Form.Control size="sm" type="text" id="_CRMID" name="CRM_Id" placeholder="CRM ID" onChange={this.handleChange} value={this.state.CRM_Id}/>
           </FormGroup>
         </Form.Row>
 
@@ -173,7 +164,7 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
               <Form.Label className={styles.customlabel}>Business Group</Form.Label>
             </FormGroup>
             <FormGroup className="col-3">
-              <Form.Control id="_businessGroup" as="select" name="BusinessGroup" onChange={this.handleChange} value={this.state.BusinessGroup}>
+              <Form.Control size="sm" id="_businessGroup" as="select" name="BusinessGroup" onChange={this.handleChange} value={this.state.BusinessGroup}>
                 <option value="">Select an Option</option>
                 <option value="Group 1">Group 1</option>
                 <option value="Group 2">Group 2</option>
@@ -184,10 +175,10 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
             <FormGroup className="col-1"></FormGroup>
 
             <FormGroup className="col-2">
-              <Form.Label className={styles.customlabel}>Project Name</Form.Label>
+              <Form.Label className={styles.customlabel +" " + styles.required}>Project Name</Form.Label>
             </FormGroup>
             <FormGroup className="col-3">
-              <Form.Control type="text" id="_projectName" name="ProjectName" placeholder="Ex: John Deer" onChange={this.handleChange} value={this.state.ProjectName} />
+              <Form.Control size="sm" type="text" id="_projectName" name="ProjectName" placeholder="Ex: John Deer" onChange={this.handleChange} value={this.state.ProjectName} />
             </FormGroup>
           </Form.Row>
 
@@ -196,7 +187,7 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
               <Form.Label className={styles.customlabel}>Delivery Manager</Form.Label>
             </FormGroup>
             <FormGroup className="col-3">
-              <PeoplePicker 
+              <PeoplePicker
               context={this.props.currentContext}
               personSelectionLimit={1}    
               groupName={""} // Leave this blank in case you want to filter from all users    
@@ -214,10 +205,10 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
             <FormGroup className="col-1"></FormGroup>
 
             <FormGroup className="col-2">
-              <Form.Label className={styles.customlabel}>Project Manager</Form.Label>
+              <Form.Label className={styles.customlabel +" " + styles.required}>Project Manager</Form.Label>
             </FormGroup>
             <FormGroup className="col-3">
-              <PeoplePicker 
+              <PeoplePicker
               context={this.props.currentContext}   
               personSelectionLimit={1}    
               groupName={""} // Leave this blank in case you want to filter from all users    
@@ -238,14 +229,14 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
               <Form.Label className={styles.customlabel}>Client Name</Form.Label>
             </FormGroup>
             <FormGroup className="col-3">
-              <Form.Control type="text" id="_clientName" name="ClientName" placeholder="Client Name" onChange={this.handleChange} value={this.state.ClientName}/>
+              <Form.Control size="sm" type="text" id="_clientName" name="ClientName" placeholder="Client Name" onChange={this.handleChange} value={this.state.ClientName}/>
             </FormGroup>
             <FormGroup className="col-1"></FormGroup>
             <FormGroup className="col-2">
               <Form.Label className={styles.customlabel}>Project Type</Form.Label>
             </FormGroup>
             <FormGroup className="col-3">
-              <Form.Control id="_projectType" as="select" name="ProjectType" onChange={this.handleChange} value={this.state.ProjectType}>
+              <Form.Control size="sm" id="_projectType" as="select" name="ProjectType" onChange={this.handleChange} value={this.state.ProjectType}>
                 <option value="">Select an Option</option>
                 <option value="SAPS4-Conversion">SAPS4-Conversion  All S/4 HANA Conversions[Migrations]</option>
                 <option value="SAPS4-Con_Upg">SAPS4-Con_Upg  All S/4 HANA Conversions & Upgrades together</option>
@@ -271,7 +262,7 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
             <Form.Label className={styles.customlabel}>Project Strategy</Form.Label>
           </FormGroup>
           <FormGroup className="col-3">
-              <Form.Control id="_projectRollOut" as="select" name="ProjectRollOutStrategy" onChange={this.handleChange} value={this.state.ProjectRollOutStrategy}>
+              <Form.Control size="sm" id="_projectRollOut" as="select" name="ProjectRollOutStrategy" onChange={this.handleChange} value={this.state.ProjectRollOutStrategy}>
               <option value="">Select an Option</option>
               <option value="Phased">Phased</option>
               <option value="Big Bang">Big Bang</option>
@@ -285,7 +276,7 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
             <Form.Label className={styles.customlabel}>Project Status</Form.Label>
           </FormGroup>
           <FormGroup className="col-3">
-            <Form.Control id="_projectStatus" as="select" name="ProjectStatus"  onChange={this.handleChange} value={this.state.ProjectStatus}>
+            <Form.Control size="sm" id="_projectStatus" as="select" name="ProjectStatus"  onChange={this.handleChange} value={this.state.ProjectStatus}>
               <option value="">Select an Option</option>
               <option value="In progress">In progress</option>
               <option value="Initiated">Initiated</option>
@@ -299,15 +290,15 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
             <Form.Label className={styles.customlabel}>Planned Start</Form.Label>
           </FormGroup>
           <FormGroup className="col-3">
-            <Form.Control className="md-form md-outline input-with-post-icon datepicker" type="text" id="inpt_plannedStart" name="PlannedStart" placeholder="Planned Start Date" onChange={this.handleChange} value={this.state.PlannedStart}/>
-            
+            <Form.Control size="sm" type="date" id="inpt_plannedStart" name="PlannedStart" placeholder="Planned Start Date" onChange={this.handleChange} value={this.state.PlannedStart}/>
+            {/* <DatePicker selected={this.state.PlannedStart}  onChange={this.handleChange} />; */}
           </FormGroup>
           <FormGroup className="col-1"></FormGroup>
           <FormGroup className="col-2"> 
             <Form.Label className={styles.customlabel}>Planned Completion</Form.Label>
           </FormGroup>
           <FormGroup className="col-3">
-            <Form.Control className="md-form md-outline input-with-post-icon datepicker" type="text" id="inpt_plannedCompletion" name="PlannedCompletion" placeholder="Planned Completion Date" onChange={this.handleChange} value={this.state.PlannedCompletion}/>
+            <Form.Control size="sm" type="date" id="inpt_plannedCompletion" name="PlannedCompletion" placeholder="Planned Completion Date" onChange={this.handleChange} value={this.state.PlannedCompletion}/>
           </FormGroup>
         </Form.Row>
         {/* Project Description */}
@@ -315,8 +306,8 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
           <FormGroup className="col-2"> 
             <Form.Label className={styles.customlabel}>Project Description</Form.Label>
           </FormGroup>
-          <FormGroup className="col-8 mb-3">
-            <Form.Control as="textarea" rows={4} type="text" id="_projectDescription" name="ProjectDescription" placeholder="Project Description" onChange={this.handleChange} value={this.state.ProjectDescription}/>
+          <FormGroup className="col-9 mb-3">
+            <Form.Control size="sm" as="textarea" rows={4} type="text" id="_projectDescription" name="ProjectDescription" placeholder="Project Description" onChange={this.handleChange} value={this.state.ProjectDescription}/>
           </FormGroup>
         </Form.Row>
         {/* Next Row */}
@@ -325,24 +316,34 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
             <Form.Label className={styles.customlabel}>Project Location</Form.Label>
           </FormGroup>
           <FormGroup className="col-3">
-            <Form.Control type="text" id="_location" name="ProjectLocation" placeholder="Project Location" onChange={this.handleChange} value={this.state.ProjectLocation}/>
+            <Form.Control size="sm" type="text" id="_location" name="ProjectLocation" placeholder="Project Location" onChange={this.handleChange} value={this.state.ProjectLocation}/>
           </FormGroup>
+          <FormGroup className="col-1"></FormGroup>
           <FormGroup className="col-2"> 
-            <Form.Label className={styles.customlabel}>Project Budget</Form.Label>
+            <Form.Label className={styles.customlabel +" " + styles.required}>Project Budget</Form.Label>
           </FormGroup>
           <FormGroup className="col-3">
-            <Form.Control type="text" id="_budget" name="ProjectBudget" placeholder="Project Budget" onChange={this.handleChange} value={this.state.ProjectBudget}/>
+            <Form.Control size="sm" type="text" id="_budget" name="ProjectBudget" placeholder="Project Budget" onChange={this.handleChange} value={this.state.ProjectBudget}/>
           </FormGroup>
         </Form.Row>
         <Form.Row className={styles.buttonCLass}>
-          <FormGroup className="col-4"></FormGroup>
-          <Button id="submit" variant="primary" type="submit">
-            Submit
-          </Button> 
-          <FormGroup className="col-1"></FormGroup>
-          <Button id="cancle" variant="primary" onClick={this.closeform}>
-            Cancle
-          </Button>
+          <FormGroup></FormGroup>
+            <div>
+              <Button id="submit" size="sm" variant="primary" type="submit">
+                Submit
+              </Button> 
+            </div>  
+            <FormGroup className="col-.5"></FormGroup>  
+            <div>
+              <Button id="cancel" size="sm" variant="primary" onClick={this.closeform}>
+                Cancle
+              </Button>
+            </div>
+            {/* <div>
+              <Button id="reset" size="sm" variant="primary" onClick={this.resetform}>
+                Reset
+              </Button>
+            </div> */}
         </Form.Row>
       </Form> 
   </div>
@@ -350,6 +351,7 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
   }
   private saveItem(e){
     var itemId = GetParameterValues('id');
+    let _validate=0;
     e.preventDefault();
 
     let requestData = {
@@ -375,12 +377,40 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
   
     };
     //validation
-    if (requestData.ProjectID_RMS.length < 1 || requestData.ProjectID_SalesCRM.length < 1 || requestData.ProjectName.length < 1 || requestData.ProjectManager.length < 1) {
+    if (requestData.ProjectID_RMS.length < 1){
       $('input[name="RMS_Id"]').css('border','2px solid red');
-      $('#selected-items-id__38').next('input').css('border','2px solid red');
-      $('#selected-items-id__36').next('input').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('input[name="RMS_Id"]').css('border','1px solid #ced4da')
+    }
+    if (requestData.ProjectID_SalesCRM.length < 1){
+      $('input[name="CRM_Id"]').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('input[name="CRM_Id"]').css('border','1px solid #ced4da')
+    }
+    if( requestData.ProjectName.length < 1){
+      $('#_projectName').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('#_projectName').css('border','1px solid #ced4da')
+    }
+    if (requestData.ProjectBudget.length < 1) {
+      $('#_budget').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('#_budget').css('border','1px solid #ced4da')
+    }
+    if (requestData.ProjectBudget.length < 1) {
+      $('#_budget').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('#_budget').css('border','1px solid #ced4da')
+    }
+    if(_validate>0){
       return false;
     }
+   
   
     jQuery.ajax({
       url:this.props.currentContext.pageContext.web.absoluteUrl+ "/_api/web/lists/getByTitle('Project Details')/items("+ itemId +")",  
@@ -483,7 +513,7 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
       });
  }
  private createItem(e){
-  
+  let _validate=0;
   e.preventDefault();
 
   let requestData = {
@@ -507,11 +537,39 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
       ProjectBudget: this.state.ProjectBudget,
       ProjectStatus: this.state.ProjectStatus
     };
-    console.log(requestData);
-    if (requestData.ProjectID_RMS.length < 1 || requestData.ProjectID_SalesCRM.length < 1 || requestData.ProjectName.length < 1 || requestData.ProjectManager.length < 1) {
+    
+    //validation
+    if (requestData.ProjectID_RMS.length < 1){
       $('input[name="RMS_Id"]').css('border','2px solid red');
-      $('#selected-items-id__38').next('input').css('border','2px solid red');
-      $('#selected-items-id__36').next('input').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('input[name="RMS_Id"]').css('border','1px solid #ced4da')
+    }
+    if (requestData.ProjectID_SalesCRM.length < 1){
+      $('input[name="CRM_Id"]').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('input[name="CRM_Id"]').css('border','1px solid #ced4da')
+    }
+    if( requestData.ProjectName.length < 1){
+      $('#_projectName').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('#_projectName').css('border','1px solid #ced4da')
+    }
+    if (requestData.ProjectBudget.length < 1) {
+      $('#_budget').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('#_budget').css('border','1px solid #ced4da')
+    }
+    if (requestData.ProjectBudget.length < 1) {
+      $('#_budget').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('#_budget').css('border','1px solid #ced4da')
+    }
+    if(_validate>0){
       return false;
     }
   
@@ -564,7 +622,8 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
     });
 
  }
- private closeform(){
+ private closeform(e){
+   e.preventDefault();
   let winURL = 'https://ytpl.sharepoint.com/sites/yashpmo/SitePages/Projects.aspx';
   window.open(winURL,'_self');
   this.setState({
@@ -588,5 +647,30 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
     focusedInput: '',
     FormDigestValue:''
   });
+ }
+ private resetform(e){
+  
+  this.setState({
+    RMS_Id : '',
+    CRM_Id :'',
+    BusinessGroup: '',
+    ProjectName: '',
+    ClientName: '',
+    DeliveryManager:'',
+    ProjectManager: '',
+    ProjectType: '',
+    ProjectRollOutStrategy: '',
+    PlannedStart: '',
+    PlannedCompletion: '',
+    ProjectDescription: '',
+    ProjectLocation: '',
+    ProjectBudget: '',
+    ProjectStatus: '',
+    startDate: '',
+    endDate: '',
+    focusedInput: '',
+    FormDigestValue:''
+  });
+  console.log(this.state.RMS_Id);
  }
 }

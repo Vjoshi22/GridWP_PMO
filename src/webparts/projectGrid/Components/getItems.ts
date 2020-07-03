@@ -58,6 +58,7 @@ function GenerateTablefromJSON(data){
     "<th>Business Group</th>" +
     "<th>Project Name</th>" +
     "<th>Client Name</th>" +
+    "<th>Delivery Manager</th>" +
     "<th>Project Manager</th>" +
     "<th>Project Type</th>" +
     "<th>Prj. Roll Out Strategy</th>" +
@@ -77,6 +78,7 @@ function GenerateTablefromJSON(data){
         tablecontent += '<td id="' + data[i].ClientName + 'row">' + data[i].BusinessGroup + "</td>";
         tablecontent += '<td id="' + data[i].ProjectID_RMS + 'row">' + data[i].ProjectName + "</td>";
         tablecontent += '<td id="' + data[i].ProjectID_RMS + 'row">' + data[i].ClientName + "</td>";
+        tablecontent += '<td id="' + data[i].ProjectID_RMS + 'row">' + data[i].DeliveryManager + "</td>";
         tablecontent += '<td id="' + data[i].ProjectID_RMS + 'row">' + data[i].ProjectManager + "</td>";
         tablecontent += '<td id="' + data[i].ProjectID_RMS + 'row">' + data[i].ProjectType + "</td>";
         tablecontent += '<td id="' + data[i].ProjectID_RMS + 'row">' + data[i].ProjectRollOutStrategy + "</td>";
