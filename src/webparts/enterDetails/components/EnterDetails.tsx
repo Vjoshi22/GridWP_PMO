@@ -38,7 +38,9 @@ export interface IreactState{
   //peoplepicker
   DeliveryManager: string;
   //date
-  startDate: any;  
+  startDate: any;
+  disable_RMSID: boolean;
+  disable_plannedCompletion: boolean;
   endDate: any;  
   focusedInput: any;
   FormDigestValue: string;
@@ -69,6 +71,8 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
       DeliveryManager:'',
       startDate: '',
       endDate: '',
+      disable_RMSID: false,
+      disable_plannedCompletion: true,
       focusedInput: '',
       FormDigestValue:''
     };  
@@ -90,6 +94,11 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
     if((/new/.test(window.location.href))){
       newitem = true
     }
+    if(!this.state.PlannedStart){
+      this.setState({
+        disable_plannedCompletion: false
+      })
+    }
     this.getAccessToken();
     timerID=setInterval(
       () =>this.getAccessToken(),300000); 
@@ -104,6 +113,31 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
     let newState = {};
     newState[e.target.name] = e.target.value;
     this.setState(newState);
+
+    if(e.target.name == "PlannedStart" && e.target.value!=""){
+      this.setState({
+        disable_plannedCompletion: false
+      })
+      if(this.state.PlannedCompletion!=""){
+      $('.errorMessage').text("");
+      var date1 = $('#inpt_plannedStart').val();
+      var date2 = $('#inpt_plannedCompletion').val()
+      if(date1>=date2){
+        $('#inpt_plannedCompletion').val("")
+        newState[e.target.name] = "";
+        this.setState(newState);
+        //alert("Planned Completion Cannot be less than Planned Start");
+        $('#inpt_plannedCompletion').closest('div').append('<span class="errorMessage" style="color:red;font-size:9pt">Must be greater than Planned Start date</span>')
+      }else{
+        $('.errorMessage').remove();
+      }
+    }
+    }else if(e.target.name == "PlannedStart" && e.target.value ==""){
+      this.setState({
+        PlannedCompletion: "",
+        disable_plannedCompletion: true
+      })
+    }
     if(e.target.name == "PlannedCompletion"){
       $('.errorMessage').text("");
       var date1 = $('#inpt_plannedStart').val();
@@ -148,7 +182,7 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
             <Form.Label className={styles.customlabel +" " + styles.required}>RMS ID</Form.Label>
           </FormGroup>
           <FormGroup className="col-3">
-            <Form.Control size="sm" type="text" id="_RMSID" name="RMS_Id" placeholder="RMS ID" onChange={this.handleChange} value={this.state.RMS_Id}/>
+            <Form.Control size="sm" type="text" disabled={this.state.disable_RMSID} id="_RMSID" name="RMS_Id" placeholder="RMS ID" onChange={this.handleChange} value={this.state.RMS_Id}/>
           </FormGroup>
           <FormGroup className="col-1"></FormGroup>
           <FormGroup className="col-2">
@@ -298,7 +332,7 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
             <Form.Label className={styles.customlabel}>Planned Completion</Form.Label>
           </FormGroup>
           <FormGroup className="col-3">
-            <Form.Control size="sm" type="date" id="inpt_plannedCompletion" name="PlannedCompletion" placeholder="Planned Completion Date" onChange={this.handleChange} value={this.state.PlannedCompletion}/>
+            <Form.Control size="sm" type="date" disabled={this.state.disable_plannedCompletion} id="inpt_plannedCompletion" name="PlannedCompletion" placeholder="Planned Completion Date" onChange={this.handleChange} value={this.state.PlannedCompletion}/>
           </FormGroup>
         </Form.Row>
         {/* Project Description */}
@@ -405,7 +439,19 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
       $('#_budget').css('border','2px solid red');
       _validate++;
     }else{
-      $('#_budget').css('border','1px solid #ced4da')
+      $('#_budget').css('border','1px solid #ced4da');
+    }
+    if(requestData.PlannedStart.length <1){
+      $('#inpt_plannedStart').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('#_budget').css('border','1px solid #ced4da');
+    }
+    if(requestData.PlannedCompletion.length < 1){
+      $('#inpt_plannedCompletion').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('#inpt_plannedCompletion').css('border','1px solid #ced4da');
     }
     if(_validate>0){
       return false;
@@ -455,6 +501,7 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
       ProjectBudget: '',
       ProjectStatus: '',
       startDate: '',
+      disable_plannedCompletion:true,
       endDate: '',
       focusedInput: '',
       FormDigestValue:''
@@ -507,7 +554,8 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
           ProjectDescription: item.ProjectDescription,
           ProjectLocation: item.ProjectLocation,
           ProjectBudget: item.ProjectBudget,
-          ProjectStatus: item.ProjectStatus
+          ProjectStatus: item.ProjectStatus,
+          disable_RMSID: true
         })  
         console.log(this.state.ProjectManager) ;
       });
@@ -568,6 +616,17 @@ export default class EnterDetails extends React.Component<IEnterDetailsProps, Ir
       _validate++;
     }else{
       $('#_budget').css('border','1px solid #ced4da')
+    }if(requestData.PlannedStart.length <1){
+      $('#inpt_plannedStart').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('#_budget').css('border','1px solid #ced4da');
+    }
+    if(requestData.PlannedCompletion.length < 1){
+      $('#inpt_plannedCompletion').css('border','2px solid red');
+      _validate++;
+    }else{
+      $('#inpt_plannedCompletion').css('border','1px solid #ced4da');
     }
     if(_validate>0){
       return false;
